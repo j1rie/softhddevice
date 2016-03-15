@@ -2698,13 +2698,12 @@ int cSoftHdDevice::PlayTsVideo(const uchar * data, int length)
 int cSoftHdDevice::PlayTsAudio(const uchar * data, int length)
 {
 #ifndef NO_TS_AUDIO
-    SoftIsPlayingVideo = cDevice::IsPlayingVideo();
+    if (SoftIsPlayingVideo != cDevice::IsPlayingVideo()) {
+	SoftIsPlayingVideo = cDevice::IsPlayingVideo();
 #ifdef DEBUG
-    static char last_SoftIsPlayingVideo;
-    if (last_SoftIsPlayingVideo != SoftIsPlayingVideo)
 	dsyslog("[softhddev]%s: SoftIsPlayingVideo: %d\n", __FUNCTION__, SoftIsPlayingVideo);
-    last_SoftIsPlayingVideo = SoftIsPlayingVideo;
 #endif
+    }
 
     return::PlayTsAudio(data, length);
 #else
