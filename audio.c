@@ -168,7 +168,7 @@ static int AudioStereoDescent;		///< volume descent for stereo
 static int AudioVolume;			///< current volume (0 .. 1000)
 
 extern int VideoAudioDelay;		///< import audio/video delay
-extern volatile char IsPlayingVideo;	///< video packets received
+extern volatile char SoftIsPlayingVideo;	///< stream contains video data
 
     /// default ring buffer size ~2s 8ch 16bit (3 * 5 * 7 * 8)
 static const unsigned AudioRingBufferSize = 3 * 5 * 7 * 8 * 2 * 1000;
@@ -2052,7 +2052,7 @@ static int AudioNextRing(void)
 	Debug(3, "audio: force start\n");
     }
     if (remain <= AUDIO_MIN_BUFFER_FREE || ((AudioVideoIsReady
-		|| !IsPlayingVideo)
+		|| !SoftIsPlayingVideo)
 	    && AudioStartThreshold < used)) {
 	return 0;
     }
@@ -2343,7 +2343,7 @@ void AudioEnqueue(const void *samples, int count)
 	    Debug(3, "audio: force start\n");
 	}
 	if (remain <= AUDIO_MIN_BUFFER_FREE || ((AudioVideoIsReady
-		    || !IsPlayingVideo)
+		    || !SoftIsPlayingVideo)
 		&& AudioStartThreshold < n)) {
 	    // restart play-back
 	    // no lock needed, can wakeup next time
