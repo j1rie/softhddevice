@@ -400,6 +400,7 @@ static xcb_atom_t NetWmStateFullscreen;	///< fullscreen wm-state message atom
 extern uint32_t VideoSwitch;		///< ticks for channel switch
 #endif
 extern void AudioVideoReady(int64_t);	///< tell audio video is ready
+extern int IsReplay(void);
 
 #ifdef USE_VIDEO_THREAD
 
@@ -5189,10 +5190,17 @@ static void VaapiSyncDecoder(VaapiDecoder * decoder)
 	&& video_clock != (int64_t) AV_NOPTS_VALUE) {
 	// both clocks are known
 	int diff;
+	int upper_limit;
+	int lower_limit;
 
 	diff = video_clock - audio_clock - VideoAudioDelay;
-	diff = (decoder->LastAVDiff + diff) / 2;
-	decoder->LastAVDiff = diff;
+	// FIXME: for Rai SD on Hotbird 110 are needed
+	upper_limit = !IsReplay() ? 55 : 15;
+	lower_limit = !IsReplay() ? -25 : -8; 
+	if (!IsReplay()) {
+	    diff = (decoder->LastAVDiff + diff) / 2;
+	    decoder->LastAVDiff = diff;
+	}
 
 	if (abs(diff) > 5000 * 90) {	// more than 5s
 	    err = VaapiMessage(2, "video: audio/video difference too big\n");
@@ -5202,12 +5210,12 @@ static void VaapiSyncDecoder(VaapiDecoder * decoder)
 	    ++decoder->FramesDuped;
 	    decoder->SyncCounter = 1;
 	    goto out;
-	} else if (diff > 55 * 90) {
+	} else if (diff > upper_limit * 90) {
 	    err = VaapiMessage(2, "video: slow down video, duping frame\n");
 	    ++decoder->FramesDuped;
 	    decoder->SyncCounter = 1;
 	    goto out;
-	} else if (diff < -25 * 90 && filled > 1 + 2 * decoder->Interlaced) {
+	} else if (diff < lower_limit * 90 && filled > 1 + 2 * decoder->Interlaced) {
 	    err = VaapiMessage(2, "video: speed up video, droping frame\n");
 	    ++decoder->FramesDropped;
 	    VaapiAdvanceDecoderFrame(decoder);
@@ -8912,10 +8920,17 @@ static void VdpauSyncDecoder(VdpauDecoder * decoder)
 	&& video_clock != (int64_t) AV_NOPTS_VALUE) {
 	// both clocks are known
 	int diff;
+	int upper_limit;
+	int lower_limit;
 
 	diff = video_clock - audio_clock - VideoAudioDelay;
-	diff = (decoder->LastAVDiff + diff) / 2;
-	decoder->LastAVDiff = diff;
+	// FIXME: for Rai SD on Hotbird 110 are needed
+	upper_limit = !IsReplay() ? 55 : 15;
+	lower_limit = !IsReplay() ? -25 : -8; 
+	if (!IsReplay()) {
+	    diff = (decoder->LastAVDiff + diff) / 2;
+	    decoder->LastAVDiff = diff;
+	}
 
 	if (abs(diff) > 5000 * 90) {	// more than 5s
 	    err = VdpauMessage(2, "video: audio/video difference too big\n");
@@ -8925,12 +8940,12 @@ static void VdpauSyncDecoder(VdpauDecoder * decoder)
 	    ++decoder->FramesDuped;
 	    decoder->SyncCounter = 1;
 	    goto out;
-	} else if (diff > 55 * 90) {
+	} else if (diff > upper_limit * 90) {
 	    err = VdpauMessage(2, "video: slow down video, duping frame\n");
 	    ++decoder->FramesDuped;
 	    decoder->SyncCounter = 1;
 	    goto out;
-	} else if (diff < -25 * 90 && filled > 1 + 2 * decoder->Interlaced) {
+	} else if (diff < lower_limit * 90 && filled > 1 + 2 * decoder->Interlaced) {
 	    err = VdpauMessage(2, "video: speed up video, droping frame\n");
 	    ++decoder->FramesDropped;
 	    VdpauAdvanceDecoderFrame(decoder);
