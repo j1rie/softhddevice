@@ -81,7 +81,7 @@ static void DumpMpeg(const uint8_t * data, int size);
 //////////////////////////////////////////////////////////////////////////////
 
 extern int ConfigAudioBufferTime;	///< config size ms of audio buffer
-extern int ConfigVideoClearOnSwitch;	//<  clear decoder on channel switch
+extern int ConfigVideoClearOnSwitch;	///<  clear decoder on channel switch
 char ConfigStartX11Server;		///< flag start the x11 server
 static signed char ConfigStartSuspended;	///< flag to start in suspend mode
 static char ConfigFullscreen;		///< fullscreen modus
@@ -91,6 +91,7 @@ static char ConfigStillDecoder;		///< hw/sw decoder for still picture
 static pthread_mutex_t SuspendLockMutex;	///< suspend lock mutex
 
 static volatile char StreamFreezed;	///< stream freezed
+volatile char IsPlayingVideo;		///< activates audio-video sync
 
 //////////////////////////////////////////////////////////////////////////////
 //	Audio
@@ -2164,6 +2165,12 @@ int PlayVideo3(VideoStream * stream, const uint8_t * data, int size)
     if (stream->Freezed) {		// stream freezed
 	return 0;
     }
+
+    if (stream == MyVideoStream) {	// main stream plays video
+	// FIXME: check if we can use ->NewStream for this.
+	IsPlayingVideo = 1;
+    }
+
     if (stream->NewStream) {		// channel switched
 	Debug(3, "video: new stream %dms\n", GetMsTicks() - VideoSwitch);
 	if (atomic_read(&stream->PacketsFilled) >= VIDEO_PACKET_MAX - 1) {
@@ -2466,6 +2473,8 @@ uint8_t *GrabImage(int *size, int jpeg, int quality, int width, int height)
 */
 int SetPlayMode(int play_mode)
 {
+    IsPlayingVideo = 0;			// reset playing video
+
     switch (play_mode) {
 	case 0:			// audio/video from decoder
 	    // tell video parser we get new stream

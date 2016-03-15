@@ -167,12 +167,14 @@ typedef enum
 #include <libavcodec/vaapi.h>
 #include <libavutil/pixdesc.h>
 
-#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(54,86,100)
+#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(54,86,100) \
+	&& LIBAVCODEC_VERSION_INT < AV_VERSION_INT(56,60,100)
     ///
     /// ffmpeg version 1.1.1 calls get_format with zero width and height
     /// for H264 codecs.
     /// since version 1.1.3 get_format is called twice.
     /// ffmpeg 1.2 still buggy
+    /// ffmpeg 2.8 can fail with workaround
     ///
 #define FFMPEG_BUG1_WORKAROUND		///< get_format bug workaround
 #endif
