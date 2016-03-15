@@ -407,6 +407,8 @@ static pthread_t VideoThread;		///< video decode thread
 static pthread_cond_t VideoWakeupCond;	///< wakeup condition variable
 static pthread_mutex_t VideoMutex;	///< video condition mutex
 static pthread_mutex_t VideoLockMutex;	///< video lock mutex
+extern pthread_mutex_t PTS_mutex;	///< PTS mutex
+extern pthread_mutex_t ReadAdvance_mutex;	///< PTS mutex
 
 #endif
 
@@ -5136,7 +5138,11 @@ static void VaapiSyncDecoder(VaapiDecoder * decoder)
     int64_t video_clock;
 
     err = 0;
+    pthread_mutex_lock(&PTS_mutex);
+    pthread_mutex_lock(&ReadAdvance_mutex);
     audio_clock = AudioGetClock();
+    pthread_mutex_unlock(&ReadAdvance_mutex);
+    pthread_mutex_unlock(&PTS_mutex);
     video_clock = VaapiGetClock(decoder);
     filled = atomic_read(&decoder->SurfacesFilled);
 
@@ -8858,7 +8864,11 @@ static void VdpauSyncDecoder(VdpauDecoder * decoder)
 	// FIXME: 60Hz Mode
 	goto skip_sync;
     }
+    pthread_mutex_lock(&PTS_mutex);
+    pthread_mutex_lock(&ReadAdvance_mutex);
     audio_clock = AudioGetClock();
+    pthread_mutex_unlock(&ReadAdvance_mutex);
+    pthread_mutex_unlock(&PTS_mutex);
 
     // 60Hz: repeat every 5th field
     if (Video60HzMode && !(decoder->FramesDisplayed % 6)) {
