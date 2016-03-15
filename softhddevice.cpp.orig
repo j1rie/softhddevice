@@ -17,7 +17,7 @@
 ///	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ///	GNU Affero General Public License for more details.
 ///
-///	$Id$
+///	$Id: 70994d77440d1a19d3b6204a50e578c950008b8a $
 //////////////////////////////////////////////////////////////////////////////
 
 #define __STDC_CONSTANT_MACROS		///< needed for ffmpeg UINT64_C
@@ -3226,7 +3226,6 @@ bool cPluginSoftHdDevice::SetupParse(const char *name, const char *value)
     }
     if (!strcasecmp(name, "AudioBufferTime")) {
 	ConfigAudioBufferTime = atoi(value);
-	AudioSetBufferTime(ConfigAudioBufferTime);
 	return true;
     }
     if (!strcasecmp(name, "AudioAutoAES")) {
