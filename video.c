@@ -5199,8 +5199,8 @@ static void VaapiSyncDecoder(VaapiDecoder * decoder)
 
 	diff = video_clock - audio_clock - VideoAudioDelay;
 	// FIXME: for Rai SD on Hotbird 110 are needed
-	upper_limit = !IsReplay() ? 44 : 15;
-	lower_limit = !IsReplay() ? -36 : -8; 
+	upper_limit = !IsReplay() ? 55 : 55;
+	lower_limit = !IsReplay() ? -25 : 32; 
 	if (!IsReplay()) {
 	    diff = (decoder->LastAVDiff + diff) / 2;
 	    decoder->LastAVDiff = diff;
@@ -8940,8 +8940,8 @@ static void VdpauSyncDecoder(VdpauDecoder * decoder)
 
 	diff = video_clock - audio_clock - VideoAudioDelay;
 	// FIXME: for Rai SD on Hotbird 110 are needed
-	upper_limit = !IsReplay() ? 44 : 15;
-	lower_limit = !IsReplay() ? -36 : -8;
+	upper_limit = !IsReplay() ? 55 : 55;
+	lower_limit = !IsReplay() ? -25 : 32;
 	if (!IsReplay()) {
 	    diff = (decoder->LastAVDiff + diff) / 2;
 	    decoder->LastAVDiff = diff;
